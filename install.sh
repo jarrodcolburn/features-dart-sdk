@@ -16,6 +16,20 @@ if echo ${VERSION/latest/stable} | grep -Eo "^(dev|beta|stable)$" ; then
     LATEST_VER="$( grep -Po '(?<="version":\W")[0-9]+\.[0-9]+\.[0-9]+.*(?=")' latest.json )"
 fi
 DART_VER="${LATEST_VER:-$VERSION}"
+
+ARCH="$(dpkg --print-architecture)"
+case "$ARCH" in
+amd64)
+    SDK_ARCH="x64"
+    ;;
+armhf)
+    SDK_ARCH="arm"
+    ;;
+arm64)
+    SDK_ARCH="arm64"
+    ;;
+esac
+
 SDK="dartsdk-linux-${SDK_ARCH}-release.zip"
 URL="$RELEASE_URL/${DART_VER}/sdk/$SDK"
 
@@ -31,19 +45,6 @@ apt install -y --no-install-recommends \
     xz-utils \
     zip \
     file
-
-ARCH="$(dpkg --print-architecture)"
-case "$ARCH" in
-amd64)
-    SDK_ARCH="x64"
-    ;;
-armhf)
-    SDK_ARCH="arm"
-    ;;
-arm64)
-    SDK_ARCH="arm64"
-    ;;
-esac
 
 curl -fLO "$URL"
 curl -Ls "$URL.sha256sum" | sha256sum --check --status --strict -
